@@ -4,17 +4,19 @@ import game.Cell;
 import game.Checker;
 import game.Chip;
 import game.Field;
+import javafx.util.Pair;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
+import java.awt.event.*;
 
 public class CheckersPanel extends JPanel {
     private static final int CELL_SIZE = 100;
     private static final int BOARD_X = 160;
     private static final int CHECKER_SIZE = 60;
+    private static final Pair<Integer,Integer> TURN_MARK_POSITION = new Pair<>(25,40);
+    private static final Pair<Integer,Integer> WHITE_BEATEN_CHECKERS_POSITION = new Pair<>(25,440);
+    private static final Pair<Integer,Integer> BLACK_BEATEN_CHECKERS_POSITION = new Pair<>(90,440);
 
     private Field field;
 
@@ -84,6 +86,16 @@ public class CheckersPanel extends JPanel {
         setLayout(new BorderLayout());
         add(new JLabel("        Сейчас ходит :"), BorderLayout.NORTH);
         add(new JLabel("     Съеденные шашки :"), BorderLayout.CENTER);
+        JButton restart = new JButton("Начать заново");
+        restart.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                isGameRunning = true;
+                field = new Field();
+                repaint();
+            }
+        });
+        add(restart,BorderLayout.SOUTH);
     }
 
     @Override
@@ -91,7 +103,7 @@ public class CheckersPanel extends JPanel {
         super.paintComponent(g);
         Graphics2D g2d = (Graphics2D) g;
         g.setColor(Color.lightGray);
-        g.fillRect(0,0,this.getWidth(),getHeight());
+        g.fillRect(0, 0, this.getWidth(), getHeight());
         for (int i = 0; i <= 7; i++) {
             for (int j = 0; j <= 7; j++) {
                 ImageIcon background = (i + j) % 2 == 0 ?
@@ -115,17 +127,17 @@ public class CheckersPanel extends JPanel {
         }
         switch (field.getTurn()) {
             case white:
-                g2d.drawImage(new ImageIcon("./src/main/resources/White_checker.png").getImage(), 25, 40, CHECKER_SIZE *3/2, CHECKER_SIZE*3 / 2, this);
+                g2d.drawImage(new ImageIcon("./src/main/resources/White_checker.png").getImage(), TURN_MARK_POSITION.getKey(), TURN_MARK_POSITION.getValue(), CHECKER_SIZE * 3 / 2, CHECKER_SIZE * 3 / 2, this);
                 break;
             case black:
-                g2d.drawImage(new ImageIcon("./src/main/resources/Black_checker.png").getImage(), 25, 40, CHECKER_SIZE *3/2, CHECKER_SIZE*3 / 2, this);
+                g2d.drawImage(new ImageIcon("./src/main/resources/Black_checker.png").getImage(), TURN_MARK_POSITION.getKey(), TURN_MARK_POSITION.getValue(), CHECKER_SIZE * 3 / 2, CHECKER_SIZE * 3 / 2, this);
                 break;
         }
         for (int i = 0; i < 12 - field.getAmountOfWhite(); i++) {
-            g2d.drawImage(new ImageIcon("./src/main/resources/White_checker.png").getImage(), 25, 440 + i * CHECKER_SIZE / 3, CHECKER_SIZE / 2, CHECKER_SIZE / 2, this);
+            g2d.drawImage(new ImageIcon("./src/main/resources/White_checker.png").getImage(), WHITE_BEATEN_CHECKERS_POSITION.getKey(), WHITE_BEATEN_CHECKERS_POSITION.getValue() + i * CHECKER_SIZE / 3, CHECKER_SIZE / 2, CHECKER_SIZE / 2, this);
         }
         for (int i = 0; i < 12 - field.getAmountOfBlack(); i++) {
-            g2d.drawImage(new ImageIcon("./src/main/resources/Black_checker.png").getImage(), 90, 440 + i * CHECKER_SIZE / 3, CHECKER_SIZE / 2, CHECKER_SIZE / 2, this);
+            g2d.drawImage(new ImageIcon("./src/main/resources/Black_checker.png").getImage(), BLACK_BEATEN_CHECKERS_POSITION.getKey(), BLACK_BEATEN_CHECKERS_POSITION.getValue() + i * CHECKER_SIZE / 3, CHECKER_SIZE / 2, CHECKER_SIZE / 2, this);
         }
     }
 

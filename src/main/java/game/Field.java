@@ -1,7 +1,9 @@
 package game;
 
-import java.util.HashMap;
-import java.util.Map;
+import com.sun.corba.se.spi.ior.IdentifiableContainerBase;
+import javafx.util.Pair;
+
+import java.util.*;
 
 import static java.lang.Integer.max;
 import static java.lang.Integer.min;
@@ -108,14 +110,14 @@ public class Field {
             int chipSequence = 0;
             int chipsInTotal = 0;
             if (checkersField.get(endCell).getChecker() == Checker.empty) {
-                for (int i = min(startCell.getX(), endCell.getX()) + 1; i < max(startCell.getX(), endCell.getX()); i++) {
-                    if (get(i, i).getChecker() != Checker.empty) {
+                for (int i = 1; i < abs(startCell.getX() - endCell.getX()); i++) {
+                    if (get(min(startCell.getX(), endCell.getX()) + i, min(startCell.getY(), endCell.getY()) + i).getChecker() != Checker.empty) {
                         chipSequence++;
                         chipsInTotal++;
                     } else {
                         chipSequence = 0;
                     }
-                    if (chipSequence > 1 || get(i, i).getChecker() == movingChip.getChecker()) {
+                    if (chipSequence > 1 || get(min(startCell.getX(), endCell.getX()) + i, min(startCell.getY(), endCell.getY()) + i).getChecker() == movingChip.getChecker()) {
                         return false;
                     }
                 }
@@ -176,6 +178,7 @@ public class Field {
     }
 
     private void checkVictor() {
+        List<Pair<Integer, Integer>> directions = Arrays.asList(new Pair<>(1, 1), new Pair<>(1, -1), new Pair<>(-1, 1), new Pair<>(-1, -1));
         for (int i = 0; i < FIELD_WIDTH; i++) {
             for (int j = 0; j < FIELD_WIDTH; j++) {
                 Cell currentCell = new Cell(i, j);
@@ -184,51 +187,25 @@ public class Field {
                     if (isAnyMoreEats(currentCell)) {
                         return;
                     }
-                    if (currentChip.getChecker() == Checker.white) {
-                        if (currentCell.getX() + 1 <= 7 && currentCell.getY() + 1 <= 7) {
-                            if (get(currentCell.getX() + 1, currentCell.getY() + 1).getChecker() == Checker.empty) {
-                                return;
+                    for (Pair<Integer, Integer> pair : directions) {
+                        if (pair.getKey() > 0 && (currentChip.getIsKing() || currentChip.getChecker() == Checker.white)) {
+                            if (currentCell.getX() + pair.getKey() <= 7 && currentCell.getX() + pair.getKey() >= 0 && currentCell.getY() + pair.getValue() >= 0 && currentCell.getY() + pair.getValue() <= 7) {
+                                if (get(currentCell.getX() + pair.getKey(), currentCell.getY() + pair.getValue()).getChecker() == Checker.empty) {
+                                    return;
+                                }
                             }
-                        }
-                        if (currentCell.getX() + 1 <= 7 && currentCell.getY() - 1 >= 0) {
-                            if (get(currentCell.getX() + 1, currentCell.getY() - 1).getChecker() == Checker.empty) {
-                                return;
-                            }
-                        }
-                        if (currentChip.getIsKing() && currentCell.getX() - 1 >= 0 && currentCell.getY() + 1 <= 7) {
-                            if (get(currentCell.getX() - 1, currentCell.getY() + 1).getChecker() == Checker.empty) {
-                                return;
-                            }
-                        }
-                        if (currentChip.getIsKing() && currentCell.getX() - 1 >= 0 && currentCell.getY() - 1 >= 0) {
-                            if (get(currentCell.getX() - 1, currentCell.getY() - 1).getChecker() == Checker.empty) {
-                                return;
-                            }
-                        }
-                    }
-                    if (currentChip.getChecker() == Checker.black) {
-                        if (currentCell.getX() - 1 >= 0 && currentCell.getY() + 1 <= 7) {
-                            if (get(currentCell.getX() - 1, currentCell.getY() + 1).getChecker() == Checker.empty) {
-                                return;
-                            }
-                        }
-                        if (currentCell.getX() - 1 >= 0 && currentCell.getY() - 1 >= 0) {
-                            if (get(currentCell.getX() - 1, currentCell.getY() - 1).getChecker() == Checker.empty) {
-                                return;
-                            }
-                        }
-                        if (currentChip.getIsKing() && currentCell.getX() + 1 <= 7 && currentCell.getY() + 1 <= 7) {
-                            if (get(currentCell.getX() + 1, currentCell.getY() + 1).getChecker() == Checker.empty) {
-                                return;
-                            }
-                        }
-                        if (currentChip.getIsKing() && currentCell.getX() + 1 <= 7 && currentCell.getY() - 1 >= 0) {
-                            if (get(currentCell.getX() + 1, currentCell.getY() - 1).getChecker() == Checker.empty) {
-                                return;
+                        } else {
+                            if (currentChip.getIsKing() || currentChip.getChecker() == Checker.black) {
+                                if (currentCell.getX() + pair.getKey() <= 7 && currentCell.getX() + pair.getKey() >= 0 && currentCell.getY() + pair.getValue() >= 0 && currentCell.getY() + pair.getValue() <= 7) {
+                                    if (get(currentCell.getX() + pair.getKey(), currentCell.getY() + pair.getValue()).getChecker() == Checker.empty) {
+                                        return;
+                                    }
+                                }
                             }
                         }
                     }
                 }
+
             }
         }
         winner = turn;
@@ -236,61 +213,38 @@ public class Field {
 
     private boolean isAnyMoreEats(Cell currentCell) {
         Chip currentChip = checkersField.get(currentCell);
-        boolean isAnyPossibleMoves = false;
+        List<Pair<Integer, Integer>> directions = Arrays.asList(new Pair<>(1, 1), new Pair<>(1, -1), new Pair<>(-1, 1), new Pair<>(-1, -1));
         if (!currentChip.getIsKing()) {
-            if (currentCell.getX() + 2 <= 7 && currentCell.getY() + 2 <= 7) {
-                if (get(currentCell.getX() + 1, currentCell.getY() + 1).getChecker() == currentChip.getChecker().flip()
-                        && get(currentCell.getX() + 2, currentCell.getY() + 2).getChecker() == Checker.empty) {
-                    isAnyPossibleMoves = true;
-                }
-            }
-            if (currentCell.getX() + 2 <= 7 && currentCell.getY() - 2 >= 0) {
-                if (get(currentCell.getX() + 1, currentCell.getY() - 1).getChecker() == currentChip.getChecker().flip()
-                        && get(currentCell.getX() + 2, currentCell.getY() - 2).getChecker() == Checker.empty) {
-                    isAnyPossibleMoves = true;
-                }
-            }
-            if (currentCell.getX() - 2 >= 0 && currentCell.getY() + 2 <= 7) {
-                if (get(currentCell.getX() - 1, currentCell.getY() + 1).getChecker() == currentChip.getChecker().flip()
-                        && get(currentCell.getX() - 2, currentCell.getY() + 2).getChecker() == Checker.empty) {
-                    isAnyPossibleMoves = true;
-                }
-            }
-            if (currentCell.getX() - 2 >= 0 && currentCell.getY() - 2 >= 0) {
-                if (get(currentCell.getX() - 1, currentCell.getY() - 1).getChecker() == currentChip.getChecker().flip()
-                        && get(currentCell.getX() - 2, currentCell.getY() - 2).getChecker() == Checker.empty) {
-                    isAnyPossibleMoves = true;
+            for (Pair<Integer, Integer> pair : directions) {
+                if (currentCell.getX() + 2 * pair.getKey() <= 7 && currentCell.getX() + 2 * pair.getKey() >= 0 && currentCell.getY() + 2 * pair.getValue() >= 0 && currentCell.getY() + 2 * pair.getValue() <= 7) {
+                    if (get(currentCell.getX() + pair.getKey(), currentCell.getY() + pair.getValue()).getChecker() == currentChip.getChecker().flip()
+                            && get(currentCell.getX() + 2 * pair.getKey(), currentCell.getY() + 2 * pair.getValue()).getChecker() == Checker.empty) {
+                        return true;
+                    }
                 }
             }
         } else {
             for (int i = 1; i < FIELD_WIDTH - 1; i++) {
-                if (currentCell.getX() + i + 1 <= 7 && currentCell.getY() + i + 1 <= 7) {
-                    if (get(currentCell.getX() + i, currentCell.getY() + i).getChecker() == currentChip.getChecker().flip()
-                            && get(currentCell.getX() + i + 1, currentCell.getY() + i + 1).getChecker() == Checker.empty) {
-                        isAnyPossibleMoves = true;
-                    }
-                }
-                if (currentCell.getX() + i + 1 <= 7 && currentCell.getY() - i - 1 >= 0) {
-                    if (get(currentCell.getX() + i, currentCell.getY() - i).getChecker() == currentChip.getChecker().flip()
-                            && get(currentCell.getX() + i + 1, currentCell.getY() - i - 1).getChecker() == Checker.empty) {
-                        isAnyPossibleMoves = true;
-                    }
-                }
-                if (currentCell.getX() - i - 1 >= 0 && currentCell.getY() + i + 1 <= 7) {
-                    if (get(currentCell.getX() - i, currentCell.getY() + i).getChecker() == currentChip.getChecker().flip()
-                            && get(currentCell.getX() - i - 1, currentCell.getY() + i + 1).getChecker() == Checker.empty) {
-                        isAnyPossibleMoves = true;
-                    }
-                }
-                if (currentCell.getX() - i - 1 >= 0 && currentCell.getY() - i - 1 >= 0) {
-                    if (get(currentCell.getX() - i, currentCell.getY() - i).getChecker() == currentChip.getChecker().flip()
-                            && get(currentCell.getX() - i - 1, currentCell.getY() - i - 1).getChecker() == Checker.empty) {
-                        isAnyPossibleMoves = true;
+                int checkerSequence = 0;
+                for (Pair<Integer, Integer> pair : directions) {
+                    if (currentCell.getX() + (i + 1) * pair.getKey() <= 7 && currentCell.getX() + (i + 1) * pair.getKey() >= 0 && currentCell.getY() + (i + 1) * pair.getValue() >= 0 && currentCell.getY() + (i + 1) * pair.getValue() <= 7) {
+                        if (get(currentCell.getX() + pair.getKey(), currentCell.getY() + pair.getValue()).getChecker() == currentChip.getChecker().flip()) {
+                            checkerSequence++;
+                        } else {
+                            checkerSequence = 0;
+                        }
+                        if (checkerSequence > 1 || get(currentCell.getX() + pair.getKey(), currentCell.getY() + pair.getValue()).getChecker() == currentChip.getChecker()) {
+                            continue;
+                        }
+                        if (get(currentCell.getX() + pair.getKey(), currentCell.getY() + pair.getValue()).getChecker() == currentChip.getChecker().flip()
+                                && get(currentCell.getX() + 2 * pair.getKey(), currentCell.getY() + 2 * pair.getValue()).getChecker() == Checker.empty) {
+                            return true;
+                        }
                     }
                 }
             }
         }
-        return isAnyPossibleMoves;
+        return false;
     }
 
     private void becomeKing(Cell currentCell) {

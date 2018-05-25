@@ -14,7 +14,7 @@ public class CheckersFrame extends JFrame {
 
     private void initMainPanel() {
         checkersPanel = new CheckersPanel();
-        checkersPanel.setPreferredSize(new Dimension(1000, 800));
+        checkersPanel.setPreferredSize(new Dimension(955, 830));
         checkersPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
 
     }
@@ -41,13 +41,15 @@ public class CheckersFrame extends JFrame {
 
     public CheckersFrame(String s) {
         super(s);
-        setSize(975, 830);
+        setSize(975, 850);
         this.setLayout(new BorderLayout());
         initMainPanel();
         setVisible(true);
         initListeners();
         this.add(checkersPanel);
         setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        setMaximumSize(getSize());
+        setMinimumSize(getSize());
     }
 
     public static void main(String[] args) {
