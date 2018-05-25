@@ -11,27 +11,15 @@ public class CheckersFrame extends JFrame {
 
     private CheckersPanel checkersPanel;
 
-    private InfoPanel infoPanel;
-
-    private ActionListener quitListener;
 
     private void initMainPanel() {
         checkersPanel = new CheckersPanel();
-        checkersPanel.setPreferredSize(new Dimension(800, 800));
+        checkersPanel.setPreferredSize(new Dimension(1000, 800));
         checkersPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
 
     }
 
-    private void initInfoPanel() {
-        infoPanel = new InfoPanel();
-        infoPanel.setPreferredSize(new Dimension(200, 500));
-        infoPanel.setMinimumSize(new Dimension(150, 500));
-        infoPanel.setBorder(new BevelBorder(BevelBorder.RAISED));
-
-    }
-
     private void initListeners() {
-        quitListener = e -> onQuit();
         addWindowListener(new WindowAdapter() {
             @Override
             public void windowClosing(WindowEvent ev) {
@@ -53,18 +41,13 @@ public class CheckersFrame extends JFrame {
 
     public CheckersFrame(String s) {
         super(s);
-        setSize(1000, 860);
+        setSize(975, 830);
         this.setLayout(new BorderLayout());
         initMainPanel();
         setVisible(true);
-        JScrollPane scrollPanel = new JScrollPane(checkersPanel);
-        scrollPanel.setMinimumSize(new Dimension(200, 200));
-        scrollPanel.setPreferredSize(new Dimension(500, 500));
-        scrollPanel.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_ALWAYS);
-        scrollPanel.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_ALWAYS);
-        this.add(new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, scrollPanel, infoPanel),
-                BorderLayout.CENTER);
         initListeners();
+        this.add(checkersPanel);
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
     }
 
     public static void main(String[] args) {

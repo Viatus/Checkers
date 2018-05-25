@@ -29,10 +29,4 @@ public class Chip {
         }
     }
 
-    public boolean isOpposite(Chip other) {
-        return !((this.checker == Checker.white && other.checker == Checker.white)
-                || (this.checker == Checker.black && other.checker == Checker.black)
-                || (this.checker == Checker.empty && other.checker == Checker.empty));
-    }
-
 }
