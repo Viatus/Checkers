@@ -23,6 +23,8 @@ public class Field {
     private int amountOfWhite;
     private int amountOfBlack;
 
+    private boolean isPreviousEat;
+
     private Map<Cell, Chip> checkersField = new HashMap<Cell, Chip>();
 
     private void putCheckers(int i, int j, int d) {
@@ -52,6 +54,7 @@ public class Field {
         }
         amountOfBlack = 12;
         amountOfWhite = 12;
+        isPreviousEat = false;
     }
 
     public Chip get(int x, int y) {
@@ -88,7 +91,7 @@ public class Field {
         if (!movingChip.getIsKing()) {
             switch (abs(startCell.getX() - endCell.getX()) + abs(startCell.getY() - endCell.getY())) {
                 case 2:
-                    if (destinationChip.getChecker() == Checker.empty) {
+                    if (destinationChip.getChecker() == Checker.empty && !isPreviousEat) {
                         if ((startCell.getX() - endCell.getX() > 0 && movingChip.getChecker() == Checker.black)
                                 || (startCell.getX() - endCell.getX() < 0 && movingChip.getChecker() == Checker.white))
                             moveChip(startCell, endCell);
@@ -122,10 +125,14 @@ public class Field {
                     }
                 }
                 if (chipsInTotal == 0) {
-                    moveChip(startCell, endCell);
+                    if (!isPreviousEat) {
+                        moveChip(startCell, endCell);
+                    }
                 } else {
                     eatChip(startCell, endCell);
                 }
+            } else {
+                return false;
             }
         }
         return true;
@@ -163,6 +170,7 @@ public class Field {
                 }
             }
         }
+        isPreviousEat = true;
         if (!isAnyMoreEats(endCell)) {
             changeTurn();
         }
@@ -175,6 +183,7 @@ public class Field {
         } else {
             turn = Checker.white;
         }
+        isPreviousEat = false;
     }
 
     private void checkVictor() {

@@ -16,7 +16,6 @@ public class CheckersFrame extends JFrame {
         checkersPanel = new CheckersPanel();
         checkersPanel.setPreferredSize(new Dimension(955, 830));
         checkersPanel.setBorder(new BevelBorder(BevelBorder.LOWERED));
-
     }
 
     private void initListeners() {
