@@ -1,6 +1,5 @@
 package game;
 
-import com.sun.corba.se.spi.ior.IdentifiableContainerBase;
 import javafx.util.Pair;
 
 import java.util.*;
@@ -28,13 +27,8 @@ public class Field {
     private Map<Cell, Chip> checkersField = new HashMap<Cell, Chip>();
 
     private void putCheckers(int i, int j, int d) {
-        if (j % 2 == d) {
-            checkersField.put(new Cell(i, j), new Chip(Checker.white));
-            checkersField.put(new Cell(FIELD_WIDTH - 1 - i, j), new Chip(Checker.empty));
-        } else {
-            checkersField.put(new Cell(i, j), new Chip(Checker.empty));
-            checkersField.put(new Cell(FIELD_WIDTH - 1 - i, j), new Chip(Checker.black));
-        }
+        checkersField.put(new Cell(i, j), j % 2 == d ? new Chip(Checker.white) : new Chip(Checker.empty));
+        checkersField.put(new Cell(FIELD_WIDTH - 1 - i, j), j % 2 == d ? new Chip(Checker.empty) : new Chip(Checker.black));
     }
 
     public Field() {
